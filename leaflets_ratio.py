@@ -49,18 +49,18 @@ The following python modules are needed :
 	
 Option	      Default  	Description                    
 -----------------------------------------------------
--f			: structure file [.gro] (required)
--x			: trajectory file [.xtc]
--o			: name of output folder
--b			: beginning time (ns) (the bilayer must exist by then!)
--e			: ending time (ns)	
--t 		1	: process every t-frames
--r [ROH]	: particle used to select residue to track
+-f		: structure file [.gro] (required)
+-x		: trajectory file [.xtc]
+-o		: name of output folder
+-b		: beginning time (ns) (the bilayer must exist by then!)
+-e		: ending time (ns)	
+-t 	1	: process every t-frames
+-r	[ROH]	: particle used to select residue to track
 
 Other options
 -----------------------------------------------------
---version		: show version number and exit
--h, --help		: show this menu and exit
+--version	: show version number and exit
+-h, --help	: show this menu and exit
   
 ''')
 
@@ -72,6 +72,10 @@ parser.add_argument('-b', nargs=1, dest='t_start', default=[-1], type=int, help=
 parser.add_argument('-e', nargs=1, dest='t_end', default=[10000000000000], type=int, help=argparse.SUPPRESS)
 parser.add_argument('-t', nargs=1, dest='frames_dt', default=[1], type=int, help=argparse.SUPPRESS)
 parser.add_argument('-r', nargs=1, dest='beadname', default=['ROH'], help=argparse.SUPPRESS)
+
+#other options
+parser.add_argument('--version', action='version', version='%(prog)s v' + version_nb, help=argparse.SUPPRESS)
+parser.add_argument('-h','--help', action='help', help=argparse.SUPPRESS)
 
 #=========================================================================================
 # store inputs
