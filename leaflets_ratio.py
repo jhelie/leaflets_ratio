@@ -69,7 +69,7 @@ parser.add_argument('-f', nargs=1, dest='grofilename', default=['no'], help=argp
 parser.add_argument('-x', nargs=1, dest='xtcfilename', default=['no'], help=argparse.SUPPRESS)
 parser.add_argument('-o', nargs=1, dest='output_folder', default=['no'], help=argparse.SUPPRESS)
 parser.add_argument('-b', nargs=1, dest='t_start', default=[-1], type=int, help=argparse.SUPPRESS)
-parser.add_argument('-e', nargs=1, dest='t_end', default=[10000000000000], type=int, help=argparse.SUPPRESS)
+parser.add_argument('-e', nargs=1, dest='t_end', default=[-1], type=int, help=argparse.SUPPRESS)
 parser.add_argument('-t', nargs=1, dest='frames_dt', default=[1], type=int, help=argparse.SUPPRESS)
 parser.add_argument('-r', nargs=1, dest='beadname', default=['ROH'], help=argparse.SUPPRESS)
 
@@ -227,6 +227,7 @@ def load_MDA_universe():												#DONE
 	else:
 		print "\nLoading trajectory..."
 		U = Universe(args.grofilename, args.xtcfilename)
+		U_timestep = U.trajectory.dt
 		all_atoms = U.selectAtoms("all")
 		nb_atoms = all_atoms.numberOfAtoms()
 		nb_frames_xtc = U.trajectory.numframes
@@ -250,7 +251,7 @@ def load_MDA_universe():												#DONE
 			f_start = int((args.t_start*1000 - U.trajectory[0].time) / float(U_timestep))
 			if f_start > f_end:
 				print "Error: the starting time specified is after the end of the xtc."
-				sys.exit(1)
+				sys.exit(1)		
 		if (f_end - f_start)%args.frames_dt == 0:
 			tmp_offset = 0
 		else:
@@ -274,17 +275,18 @@ def data_time():
 	return
 def data_sele():
 	
+	global total_nb
+	total_nb = {}
+	
 	#for leaflet identification
 	global leaflets
-	global lealfets_nb
 	leaflets = U.selectAtoms("name PO4 or name PO3 or name AM1 or name ROH")
-	leaflets_nb = leaflets.numberOfAtoms()
+	total_nb["leaflets"] = leaflets.numberOfAtoms()
 	
 	#beads of interest
 	global specie	
-	global specie_nb
 	specie = U.selectAtoms("name " + str(args.beadname))
-	specie_nb = specie.numberOfAtoms()
+	total_nb["specie"] = specie.numberOfAtoms()
 	
 	return
 def data_ratios():
@@ -308,16 +310,16 @@ def calculate_ratios(f_index):
 
 	#size of leaflets
 	tmp_upper_total = len(tmp_zcoord[tmp_zcoord>tmp_z_avg])
-	tmp_lower_total = leaflets_nb - tmp_upper_total
+	tmp_lower_total = total_nb["leaflets"] - tmp_upper_total
 
 	#nb of beads of interest in each leaflet
 	tmp_upper_specie = len(tmp_s_zcoord[tmp_s_zcoord>tmp_z_avg])
-	tmp_lower_specie = specie_nb - tmp_upper_specie
+	tmp_lower_specie = total_nb["specie"] - tmp_upper_specie
 
 	#calculate ratios
 	ratios_inter["upper"][f_index] = tmp_upper_specie / float(tmp_upper_total) *100
 	ratios_inter["lower"][f_index] = tmp_lower_specie / float(tmp_lower_total) *100
-	ratios_intra["upper"][f_index] = tmp_upper_specie / float(tmp_upper_specie + tmp_lower_specie) *100
+	ratios_intra["upper"][f_index] = tmp_upper_specie / float(total_nb["specie"]) *100
 	ratios_intra["lower"][f_index] = 100 - ratios_intra["upper"][f_index]
 	
 	return
@@ -372,9 +374,7 @@ data_ratios()
 print "\nCalculating sizes sampled by flip-flopping lipids..."
 
 for f_index in range(0,nb_frames_to_process):
-	ts = U.trajectory[frames_to_process[f_index]]
-	if ts.time/float(1000) > args.t_end:
-		break
+	ts = U.trajectory[frames_to_process[f_index]]	
 	progress = '\r -processing frame ' + str(ts.frame) + '/' + str(nb_frames_xtc) + '                      '  
 	sys.stdout.flush()
 	sys.stdout.write(progress)
