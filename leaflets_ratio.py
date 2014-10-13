@@ -320,7 +320,7 @@ def calculate_ratios(f_index):
 	ratios_intra["upper"][f_index] = tmp_upper_specie / float(tmp_upper_total) *100
 	ratios_intra["lower"][f_index] = tmp_lower_specie / float(tmp_lower_total) *100
 	ratios_inter["upper"][f_index] = tmp_upper_specie / float(total_nb["specie"]) *100
-	ratios_inter["lower"][f_index] = 100 - ratios_intra["upper"][f_index]
+	ratios_inter["lower"][f_index] = 100 - ratios_inter["upper"][f_index]
 	
 	return
 
