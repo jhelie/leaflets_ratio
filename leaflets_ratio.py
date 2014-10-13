@@ -280,7 +280,7 @@ def data_sele():
 	
 	#for leaflet identification
 	global leaflets
-	leaflets = U.selectAtoms("name PO4 or name PO3 or name AM1 or name ROH")
+	leaflets = U.selectAtoms("name PO4 or name PO3 or (name AM1 and resname CER*) or name ROH")
 	total_nb["leaflets"] = leaflets.numberOfAtoms()
 	
 	#beads of interest
@@ -311,11 +311,11 @@ def calculate_ratios(f_index):
 	#size of leaflets
 	tmp_upper_total = len(tmp_zcoord[tmp_zcoord>tmp_z_avg])
 	tmp_lower_total = total_nb["leaflets"] - tmp_upper_total
-
+	
 	#nb of beads of interest in each leaflet
 	tmp_upper_specie = len(tmp_s_zcoord[tmp_s_zcoord>tmp_z_avg])
 	tmp_lower_specie = total_nb["specie"] - tmp_upper_specie
-
+	
 	#calculate ratios
 	ratios_inter["upper"][f_index] = tmp_upper_specie / float(tmp_upper_total) *100
 	ratios_inter["lower"][f_index] = tmp_lower_specie / float(tmp_lower_total) *100
